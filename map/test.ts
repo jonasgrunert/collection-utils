@@ -46,4 +46,36 @@ Deno.test("Map", async (t) => {
       assertEquals(m.get("Key-1"), 1);
     });
   });
+  await t.step("ComputeIfAbsent", async (t) => {
+    await t.step("Key does not exist", () => {
+      const m = new CollectionMap<string, number>();
+      assertEquals(
+        m.computeIfAbsent("Key-1", (key) => Number.parseInt(key.at(-1)!)),
+        1,
+      );
+      assertEquals(m.get("Key-1"), 1);
+    });
+    await t.step("Key does exist", () => {
+      const m = new CollectionMap([["Key", 1]]);
+      assertEquals(
+        m.computeIfAbsent("Key", (_key) => 1),
+        1,
+      );
+      assertEquals(m.get("Key"), 1);
+    });
+    await t.step(
+      "Key does not exist before but is not added due to undefined being returned",
+      () => {
+        const m = new CollectionMap<string, number>();
+        assertEquals(
+          m.computeIfAbsent(
+            "Key",
+            (_key) => undefined,
+          ),
+          undefined,
+        );
+        assertEquals(m.get("Key"), undefined);
+      },
+    );
+  });
 });

@@ -36,3 +36,39 @@ Deno.bench(
     m.get("Key");
   },
 );
+
+Deno.bench("Map - ComputeIfAbsent", { group: "map_computeIfAbsent" }, () => {
+  const m = new CollectionMap<string, number>();
+  m.computeIfAbsent(
+    "Key",
+    (_key) => 1,
+  );
+  m.computeIfAbsent(
+    "Key",
+    (_key) => 1,
+  );
+  m.computeIfAbsent(
+    "Key1",
+    (_key) => undefined,
+  );
+});
+
+Deno.bench(
+  "Map - ComputeIfAbsent - Baseline",
+  { group: "map_computeIfAbsent", baseline: true },
+  () => {
+    const m = new Map<string, number>();
+    if (!m.has("Key")) {
+      m.set("Key", 0);
+    }
+    m.get("Key");
+    if (!m.has("Key")) {
+      m.set("Key", 0);
+    }
+    m.get("Key");
+    // deno-lint-ignore no-empty
+    if (!m.has("Key1")) {
+    }
+    m.get("Key");
+  },
+);

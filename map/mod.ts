@@ -1,3 +1,5 @@
+type MappingFunction<K, V> = (key: K, value: V | undefined) => V | undefined;
+
 /**
  * ### Extended Map Class
  * Can be used in the same way as normal class with some convenience methods.
@@ -5,7 +7,7 @@
  * @template V Type of the Value
  * @example
  * ```ts
- * import { CollectionMap } from "https://deno.land/x/collection-utils@$MODULE_VERSION/map/mod.ts"
+ * import { CollectionMap } from "./mod.ts"
  * const m = new CollectionMap<string, number>();
  * ```
  */
@@ -24,7 +26,7 @@ export class CollectionMap<K, V> extends Map<K, V> {
    * @returns The new computed and stored value or undefined
    * @example
    * ````ts
-   * import { CollectionMap } from "https://deno.land/x/collection-utils@$MODULE_VERSION/map/mod.ts"
+   * import { CollectionMap } from "./mod.ts"
    * const m = new CollectionMap<string, number>([["key-2", 1]]);
    * for (const key of ["key-1", "key-2"]){
    *    m.compute(key, (_key, value) => value === undefined ? 0 : value + 1);
@@ -35,7 +37,7 @@ export class CollectionMap<K, V> extends Map<K, V> {
    */
   compute(
     key: K,
-    mappingFunction: (key: K, value: V | undefined) => V | undefined,
+    mappingFunction: MappingFunction<K, V>,
   ): V | undefined {
     const value = mappingFunction(key, this.get(key));
     if (value === undefined) {
@@ -44,5 +46,42 @@ export class CollectionMap<K, V> extends Map<K, V> {
       this.set(key, value);
     }
     return value;
+  }
+
+  /**
+   * A function which takes a key and a function to compute a new value of the provided key if its not present in the map.
+   *
+   * The function takes one parameter; the key.
+   * The function should return the new value or undefined.
+   *
+   * If a value is returned it will get written as the new value to the key.
+   * If undefined is returned the mapping will not be added.
+   * @summary A function to compute a new value based on the old value or undefined if not present. Returns the new value associted with the key.
+   * @param key Key of the entry.
+   * @param mappingFunction A function called with the key should return a new value.
+   * @returns The new computed and stored value or undefined
+   * @example
+   * ````ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number>([["key-2", 1]]);
+   * for (const key of ["key-1", "key-2"]){
+   *    m.computeIfAbsent(key, (key) => Number.parseInt(key.at(-1)!));
+   * }
+   * m.get("key-1") === 1;
+   * m.get("key-2") === 2;
+   * ```
+   */
+  computeIfAbsent(
+    key: K,
+    mappingFunction: (key: K) => V | undefined,
+  ): V | undefined {
+    if (!this.has(key)) {
+      const value = mappingFunction(key);
+      if (value !== undefined) {
+        this.set(key, value);
+      }
+      return value;
+    }
+    return this.get(key);
   }
 }
