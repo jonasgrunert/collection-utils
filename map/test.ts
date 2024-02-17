@@ -78,4 +78,36 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("ComputeIfPresent", async (t) => {
+    await t.step("Key does not exist", () => {
+      const m = new CollectionMap<string, number>();
+      assertEquals(
+        m.computeIfPresent("Key-1", () => 1),
+        undefined,
+      );
+      assertEquals(m.get("Key-1"), undefined);
+    });
+    await t.step("Key does exist", () => {
+      const m = new CollectionMap([["Key", 1]]);
+      assertEquals(
+        m.computeIfPresent("Key", (_key, value) => value + 1),
+        2,
+      );
+      assertEquals(m.get("Key"), 2);
+    });
+    await t.step(
+      "Key does exist before but is removed due to undefined being returned",
+      () => {
+        const m = new CollectionMap([["Key", 1]]);
+        assertEquals(
+          m.computeIfPresent(
+            "Key",
+            (_key, value) => value === 1 ? undefined : value,
+          ),
+          undefined,
+        );
+        assertEquals(m.get("Key"), undefined);
+      },
+    );
+  });
 });

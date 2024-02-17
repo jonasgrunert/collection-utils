@@ -72,3 +72,41 @@ Deno.bench(
     m.get("Key");
   },
 );
+
+Deno.bench("Map - ComputeIfPresent", { group: "map_computeIfPresent" }, () => {
+  const m = new CollectionMap([["Key", 1]]);
+  m.computeIfPresent(
+    "Key",
+    (_key, value) => value + 1,
+  );
+  m.computeIfPresent(
+    "Key",
+    (_key, value) => value === 2 ? undefined : value,
+  );
+  m.computeIfPresent(
+    "Key",
+    (_key) => 1,
+  );
+});
+
+Deno.bench(
+  "Map - ComputeIfPresent - Baseline",
+  { group: "map_computeIfPresent", baseline: true },
+  () => {
+    const m = new Map([["Key", 1]]);
+    if (m.has("Key")) {
+      m.set("Key", m.get("Key")! + 1);
+    }
+    m.get("Key");
+    if (m.has("Key")) {
+      if (m.get("Key") === 2) {
+        m.delete("Key");
+      }
+    }
+    m.get("Key");
+    // deno-lint-ignore no-empty
+    if (m.has("Key1")) {
+    }
+    m.get("Key");
+  },
+);
