@@ -1,0 +1,9 @@
+{
+    "tasks": {
+        "bench": "deno bench --json > bench_profile.json",
+        "check": "deno lint && deno doc --lint map/mod.ts",
+        "coverage": "deno test --coverage=cov_profile && deno coverage cov_profile --html",
+        "doc": "deno doc --html --name=\"Collection Uils\" --output=docs map/mod.ts",
+        "test": "deno test --doc --parallel"
+    }
+}
