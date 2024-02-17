@@ -69,7 +69,7 @@ Deno.bench(
     // deno-lint-ignore no-empty
     if (!m.has("Key1")) {
     }
-    m.get("Key");
+    m.get("Key1");
   },
 );
 
@@ -84,7 +84,7 @@ Deno.bench("Map - ComputeIfPresent", { group: "map_computeIfPresent" }, () => {
     (_key, value) => value === 2 ? undefined : value,
   );
   m.computeIfPresent(
-    "Key",
+    "Key1",
     (_key) => 1,
   );
 });
@@ -108,5 +108,57 @@ Deno.bench(
     if (m.has("Key1")) {
     }
     m.get("Key");
+  },
+);
+
+Deno.bench("Map - ComputeIf", { group: "map_computeIf" }, () => {
+  const m = new CollectionMap([["Key", 1]]);
+  m.computeIf("Key", {
+    present: (_key, value) => value === undefined ? value : value + 1,
+    absent: (_key) => undefined,
+  });
+  m.computeIf("Key-1", {
+    present: (_key, value) => value === undefined ? value : value + 1,
+    absent: (_key) => 1,
+  });
+  m.computeIf(
+    "Key",
+    {
+      present: (_key, value) => value === 2 ? undefined : value,
+      absent: (_key) => undefined,
+    },
+  );
+  m.computeIf(
+    "Key-2",
+    {
+      present: (_key, value) => value === 2 ? undefined : value,
+      absent: (_key) => undefined,
+    },
+  );
+});
+
+Deno.bench(
+  "Map - ComputeIf - Baseline",
+  { group: "map_computeIf", baseline: true },
+  () => {
+    const m = new Map([["Key", 1]]);
+    if (m.has("Key")) {
+      m.set("Key", m.get("Key")! + 1);
+    }
+    m.get("Key");
+    if (!m.has("Key-1")) {
+      m.set("Key-1", 1);
+    }
+    m.get("Key-1");
+    if (m.has("Key")) {
+      if (m.get("Key") === 2) {
+        m.delete("Key");
+      }
+    }
+    m.get("Key");
+    // deno-lint-ignore no-empty
+    if (m.has("Key-2")) {
+    }
+    m.get("Key-2");
   },
 );

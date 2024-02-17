@@ -110,4 +110,73 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("ComputeIf", async (t) => {
+    await t.step("Key does not exist", () => {
+      const m = new CollectionMap<string, number | undefined>();
+      assertEquals(
+        m.computeIf("Key-1", {
+          present: (_key, value) => value === undefined ? value : value + 1,
+          absent: (key) => Number.parseInt(key.at(-1)!),
+        }),
+        1,
+      );
+      assertEquals(m.get("Key-1"), 1);
+    });
+    await t.step("Key does exist", () => {
+      const m = new CollectionMap<string, number>([["Key-1", 1]]);
+      assertEquals(
+        m.computeIf("Key-1", {
+          present: (_key, value) => value === undefined ? value : value + 1,
+          absent: (key) => Number.parseInt(key.at(-1)!),
+        }),
+        2,
+      );
+      assertEquals(m.get("Key-1"), 2);
+    });
+    await t.step(
+      "Key does exist before but is removed due to undefined being returned",
+      () => {
+        const m = new CollectionMap<string, number>([["Key-1", 1]]);
+        assertEquals(
+          m.computeIf("Key-1", {
+            present: () => undefined,
+            absent: (key) => Number.parseInt(key.at(-1)!),
+          }),
+          undefined,
+        );
+        assertEquals(m.get("Key-1"), undefined);
+      },
+    );
+    await t.step(
+      "Key does not exist before but is not added due to undefined being returned",
+      () => {
+        const m = new CollectionMap<string, number>();
+        assertEquals(
+          m.computeIf("Key-1", {
+            present: (_key, value) => value === undefined ? value : value + 1,
+            absent: (_key) => undefined,
+          }),
+          undefined,
+        );
+        assertEquals(m.get("Key-1"), undefined);
+      },
+    );
+    await t.step(
+      "Key does exists as undefined and is tehrefore changed",
+      () => {
+        const m = new CollectionMap<string, number | undefined>([[
+          "Key-1",
+          undefined,
+        ]]);
+        assertEquals(
+          m.computeIf("Key-1", {
+            present: (_key, value) => value === undefined ? 10 : value + 1,
+            absent: (key) => Number.parseInt(key.at(-1)!),
+          }),
+          10,
+        );
+        assertEquals(m.get("Key-1"), 10);
+      },
+    );
+  });
 });

@@ -5,5 +5,11 @@
         "coverage": "deno test --coverage=cov_profile && deno coverage cov_profile --html",
         "doc": "deno doc --html --name=\"Collection Uils\" --output=docs map/mod.ts",
         "test": "deno test --doc --parallel"
+    },
+    "lint": {
+        "exclude": [
+            "cov_profile/**",
+            "docs/**"
+        ]
     }
 }
