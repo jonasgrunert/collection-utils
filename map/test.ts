@@ -192,4 +192,37 @@ Deno.test("Map", async (t) => {
       assert(!m.hasValue(0));
     });
   });
+  await t.step("merge", async (t) => {
+    await t.step("Key does not exist", () => {
+      const m = new CollectionMap<string, number>();
+      assertEquals(
+        m.merge("Key", 1, (old, curr) => old + curr),
+        1,
+      );
+      assertEquals(m.get("Key"), 1);
+    });
+    await t.step("Key does exist", () => {
+      const m = new CollectionMap([["Key", 1]]);
+      assertEquals(
+        m.merge("Key", 1, (old, curr) => old + curr),
+        2,
+      );
+      assertEquals(m.get("Key"), 2);
+    });
+    await t.step(
+      "Key does exist before but is deleted due to undefined being returned",
+      () => {
+        const m = new CollectionMap([["Key", 1]]);
+        assertEquals(
+          m.merge(
+            "Key",
+            1,
+            (old, curr) => old + curr > 0 ? undefined : old + curr,
+          ),
+          undefined,
+        );
+        assertEquals(m.get("Key"), undefined);
+      },
+    );
+  });
 });

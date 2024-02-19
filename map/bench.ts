@@ -1,6 +1,6 @@
 import { CollectionMap } from "./mod.ts";
 
-Deno.bench("Map - compute", { group: "map_compute" }, () => {
+Deno.bench("Map - compute", { group: "Map - compute" }, () => {
   const m = new CollectionMap<string, number>();
   m.compute(
     "Key",
@@ -18,7 +18,7 @@ Deno.bench("Map - compute", { group: "map_compute" }, () => {
 
 Deno.bench(
   "Map - compute - Baseline",
-  { group: "map_compute", baseline: true },
+  { group: "Map - compute", baseline: true },
   () => {
     const m = new Map<string, number>();
     if (!m.has("Key")) {
@@ -37,7 +37,7 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - computeIfAbsent", { group: "map_computeIfAbsent" }, () => {
+Deno.bench("Map - computeIfAbsent", { group: "Map - computeIfAbsent" }, () => {
   const m = new CollectionMap<string, number>();
   m.computeIfAbsent(
     "Key",
@@ -55,7 +55,7 @@ Deno.bench("Map - computeIfAbsent", { group: "map_computeIfAbsent" }, () => {
 
 Deno.bench(
   "Map - computeIfAbsent - Baseline",
-  { group: "map_computeIfAbsent", baseline: true },
+  { group: "Map - computeIfAbsent", baseline: true },
   () => {
     const m = new Map<string, number>();
     if (!m.has("Key")) {
@@ -73,25 +73,29 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - computeIfPresent", { group: "map_computeIfPresent" }, () => {
-  const m = new CollectionMap([["Key", 1]]);
-  m.computeIfPresent(
-    "Key",
-    (_key, value) => value + 1,
-  );
-  m.computeIfPresent(
-    "Key",
-    (_key, value) => value === 2 ? undefined : value,
-  );
-  m.computeIfPresent(
-    "Key1",
-    (_key) => 1,
-  );
-});
+Deno.bench(
+  "Map - computeIfPresent",
+  { group: "Map - computeIfPresent" },
+  () => {
+    const m = new CollectionMap([["Key", 1]]);
+    m.computeIfPresent(
+      "Key",
+      (_key, value) => value + 1,
+    );
+    m.computeIfPresent(
+      "Key",
+      (_key, value) => value === 2 ? undefined : value,
+    );
+    m.computeIfPresent(
+      "Key1",
+      (_key) => 1,
+    );
+  },
+);
 
 Deno.bench(
   "Map - computeIfPresent - Baseline",
-  { group: "map_computeIfPresent", baseline: true },
+  { group: "Map - computeIfPresent", baseline: true },
   () => {
     const m = new Map([["Key", 1]]);
     if (m.has("Key")) {
@@ -111,7 +115,7 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - computeIf", { group: "map_computeIf" }, () => {
+Deno.bench("Map - computeIf", { group: "Map - computeIf" }, () => {
   const m = new CollectionMap([["Key", 1]]);
   m.computeIf("Key", {
     present: (_key, value) => value === undefined ? value : value + 1,
@@ -139,7 +143,7 @@ Deno.bench("Map - computeIf", { group: "map_computeIf" }, () => {
 
 Deno.bench(
   "Map - computeIf - Baseline",
-  { group: "map_computeIf", baseline: true },
+  { group: "Map - computeIf", baseline: true },
   () => {
     const m = new Map([["Key", 1]]);
     if (m.has("Key")) {
@@ -163,7 +167,7 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - hasValue", { group: "map_hasValue" }, () => {
+Deno.bench("Map - hasValue", { group: "Map - hasValue" }, () => {
   const m = new CollectionMap(
     Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
   );
@@ -173,7 +177,7 @@ Deno.bench("Map - hasValue", { group: "map_hasValue" }, () => {
 
 Deno.bench(
   "Map - hasValue - Baseline",
-  { group: "map_hasValue", baseline: true },
+  { group: "Map - hasValue", baseline: true },
   () => {
     const m = new CollectionMap(
       Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
@@ -186,6 +190,36 @@ Deno.bench(
     for (const v of m.values()) {
       if (Object.is(v, 10_001)) {
         break;
+      }
+    }
+  },
+);
+
+Deno.bench("Map - merge", { group: "Map - merge" }, () => {
+  const m = new CollectionMap<string, number>();
+  for (let i = 0; i < 3; i++) {
+    m.merge(
+      "Key",
+      1,
+      (old, curr) => old > 1 ? undefined : old + curr,
+    );
+  }
+});
+
+Deno.bench(
+  "Map - merge - Baseline",
+  { group: "Map - merge", baseline: true },
+  () => {
+    const m = new Map<string, number>();
+    for (let i = 0; i < 3; i++) {
+      const v = m.get("Key");
+      const n = v === undefined ? 1 : v > 2 ? undefined : v + 1;
+      if (n === undefined) {
+        m.delete(
+          "Key",
+        );
+      } else {
+        m.set("Key", n);
       }
     }
   },
