@@ -1,8 +1,11 @@
-import { assertEquals } from "https://deno.land/std@0.216.0/assert/mod.ts";
+import {
+  assert,
+  assertEquals,
+} from "https://deno.land/std@0.216.0/assert/mod.ts";
 import { CollectionMap } from "./mod.ts";
 
 Deno.test("Map", async (t) => {
-  await t.step("Compute", async (t) => {
+  await t.step("compute", async (t) => {
     await t.step("Key does not exist", () => {
       const m = new CollectionMap<string, number>();
       assertEquals(
@@ -46,7 +49,7 @@ Deno.test("Map", async (t) => {
       assertEquals(m.get("Key-1"), 1);
     });
   });
-  await t.step("ComputeIfAbsent", async (t) => {
+  await t.step("computeIfAbsent", async (t) => {
     await t.step("Key does not exist", () => {
       const m = new CollectionMap<string, number>();
       assertEquals(
@@ -78,7 +81,7 @@ Deno.test("Map", async (t) => {
       },
     );
   });
-  await t.step("ComputeIfPresent", async (t) => {
+  await t.step("computeIfPresent", async (t) => {
     await t.step("Key does not exist", () => {
       const m = new CollectionMap<string, number>();
       assertEquals(
@@ -110,7 +113,7 @@ Deno.test("Map", async (t) => {
       },
     );
   });
-  await t.step("ComputeIf", async (t) => {
+  await t.step("computeIf", async (t) => {
     await t.step("Key does not exist", () => {
       const m = new CollectionMap<string, number | undefined>();
       assertEquals(
@@ -178,5 +181,15 @@ Deno.test("Map", async (t) => {
         assertEquals(m.get("Key-1"), 10);
       },
     );
+  });
+  await t.step("hasValue", async (t) => {
+    await t.step("Value exists", () => {
+      const m = new CollectionMap([["key", 25]]);
+      assert(m.hasValue(25));
+    });
+    await t.step("Value does not exist", () => {
+      const m = new CollectionMap([["key", 25]]);
+      assert(!m.hasValue(0));
+    });
   });
 });

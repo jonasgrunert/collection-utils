@@ -1,6 +1,6 @@
 import { CollectionMap } from "./mod.ts";
 
-Deno.bench("Map - Compute", { group: "map_compute" }, () => {
+Deno.bench("Map - compute", { group: "map_compute" }, () => {
   const m = new CollectionMap<string, number>();
   m.compute(
     "Key",
@@ -17,7 +17,7 @@ Deno.bench("Map - Compute", { group: "map_compute" }, () => {
 });
 
 Deno.bench(
-  "Map - Compute - Baseline",
+  "Map - compute - Baseline",
   { group: "map_compute", baseline: true },
   () => {
     const m = new Map<string, number>();
@@ -37,7 +37,7 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - ComputeIfAbsent", { group: "map_computeIfAbsent" }, () => {
+Deno.bench("Map - computeIfAbsent", { group: "map_computeIfAbsent" }, () => {
   const m = new CollectionMap<string, number>();
   m.computeIfAbsent(
     "Key",
@@ -54,7 +54,7 @@ Deno.bench("Map - ComputeIfAbsent", { group: "map_computeIfAbsent" }, () => {
 });
 
 Deno.bench(
-  "Map - ComputeIfAbsent - Baseline",
+  "Map - computeIfAbsent - Baseline",
   { group: "map_computeIfAbsent", baseline: true },
   () => {
     const m = new Map<string, number>();
@@ -73,7 +73,7 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - ComputeIfPresent", { group: "map_computeIfPresent" }, () => {
+Deno.bench("Map - computeIfPresent", { group: "map_computeIfPresent" }, () => {
   const m = new CollectionMap([["Key", 1]]);
   m.computeIfPresent(
     "Key",
@@ -90,7 +90,7 @@ Deno.bench("Map - ComputeIfPresent", { group: "map_computeIfPresent" }, () => {
 });
 
 Deno.bench(
-  "Map - ComputeIfPresent - Baseline",
+  "Map - computeIfPresent - Baseline",
   { group: "map_computeIfPresent", baseline: true },
   () => {
     const m = new Map([["Key", 1]]);
@@ -111,7 +111,7 @@ Deno.bench(
   },
 );
 
-Deno.bench("Map - ComputeIf", { group: "map_computeIf" }, () => {
+Deno.bench("Map - computeIf", { group: "map_computeIf" }, () => {
   const m = new CollectionMap([["Key", 1]]);
   m.computeIf("Key", {
     present: (_key, value) => value === undefined ? value : value + 1,
@@ -138,7 +138,7 @@ Deno.bench("Map - ComputeIf", { group: "map_computeIf" }, () => {
 });
 
 Deno.bench(
-  "Map - ComputeIf - Baseline",
+  "Map - computeIf - Baseline",
   { group: "map_computeIf", baseline: true },
   () => {
     const m = new Map([["Key", 1]]);
@@ -160,5 +160,33 @@ Deno.bench(
     if (m.has("Key-2")) {
     }
     m.get("Key-2");
+  },
+);
+
+Deno.bench("Map - hasValue", { group: "map_hasValue" }, () => {
+  const m = new CollectionMap(
+    Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
+  );
+  m.hasValue(9_999);
+  m.hasValue(10_0001);
+});
+
+Deno.bench(
+  "Map - hasValue - Baseline",
+  { group: "map_hasValue", baseline: true },
+  () => {
+    const m = new CollectionMap(
+      Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
+    );
+    for (const v of m.values()) {
+      if (Object.is(v, 9_999)) {
+        break;
+      }
+    }
+    for (const v of m.values()) {
+      if (Object.is(v, 10_001)) {
+        break;
+      }
+    }
   },
 );

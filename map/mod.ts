@@ -170,4 +170,17 @@ export class CollectionMap<K, V> extends Map<K, V> {
     }
     return value;
   }
+
+  /**
+   * A function to check wether the map has the specfied value. It uses Object.is equality and performs with O(n) at worst case.
+   * @param value: Value to search for in the values of the map
+   */
+  hasValue(value: V): boolean {
+    for (const v of this.values()) {
+      if (Object.is(value, v)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
