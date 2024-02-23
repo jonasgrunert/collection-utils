@@ -182,6 +182,31 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("delete", async (t) => {
+    await t.step("Deletes successful without value checking", () => {
+      const m = new CollectionMap<string, number>([["key", 25]]);
+      assert(m.delete("key"));
+    });
+    await t.step("Delete fails without value checking", () => {
+      const m = new CollectionMap<string, number>([["key", 25]]);
+      assert(!m.delete("not"));
+    });
+    await t.step("Deletes successful with value checking", () => {
+      const m = new CollectionMap<string, number>([["key", 25]]);
+      assert(m.delete("key", 25));
+    });
+    await t.step("Delete fails with value checking", () => {
+      const m = new CollectionMap<string, number>([["key", 25]]);
+      assert(!m.delete("key", 10));
+    });
+  });
+  await t.step("Deletes succesful with value checking for undefined", () => {
+    const m = new CollectionMap<string, number | undefined>([[
+      "key",
+      undefined,
+    ]]);
+    assert(m.delete("key", undefined));
+  });
   await t.step("empty", async (t) => {
     await t.step("Is empty", () => {
       const m = new CollectionMap<string, number>();

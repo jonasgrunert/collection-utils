@@ -166,14 +166,43 @@ Deno.bench(
     m.get("Key-2");
   },
 );
-
-Deno.bench("Map - hasValue", { group: "Map - hasValue" }, () => {
-  const m = new CollectionMap(
-    Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
-  );
-  m.hasValue(9_999);
-  m.hasValue(10_0001);
+Deno.bench("Map - delete", { group: "Map - delete" }, () => {
+  const m = new CollectionMap([
+    ["key", 25],
+    ["key-2", 26],
+    ["key-3", 10],
+    ["und", undefined],
+  ]);
+  m.delete("key");
+  m.delete("not");
+  m.delete("key-2", 26);
+  m.delete("key-3", 25);
+  m.delete("und", undefined);
 });
+
+Deno.bench(
+  "Map - delete - Baseline",
+  { group: "Map - delete", baseline: true },
+  () => {
+    const m = new Map([
+      ["key", 25],
+      ["key-2", 26],
+      ["key-3", 10],
+      ["und", undefined],
+    ]);
+    m.delete("key");
+    m.delete("not");
+    if (m.get("key-2") === 26) {
+      m.delete("key-2");
+    }
+    if (m.get("key-3") === 26) {
+      m.delete("key-3");
+    }
+    if (m.has("und") && m.get("und") === undefined) {
+      m.delete("und");
+    }
+  },
+);
 
 Deno.bench("Map - empty", { group: "Map - empty" }, () => {
   const m = new CollectionMap<string, number>();
@@ -192,6 +221,14 @@ Deno.bench(
     m.size === 0;
   },
 );
+
+Deno.bench("Map - hasValue", { group: "Map - hasValue" }, () => {
+  const m = new CollectionMap(
+    Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
+  );
+  m.hasValue(9_999);
+  m.hasValue(10_0001);
+});
 
 Deno.bench(
   "Map - hasValue - Baseline",

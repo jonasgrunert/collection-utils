@@ -1,3 +1,5 @@
+const undefinedSymbol = Symbol("collections::undefined");
+
 /**
  * ### Extended Map Class
  * Can be used in the same way as normal class with some convenience methods.
@@ -175,6 +177,38 @@ export class CollectionMap<K, V> extends Map<K, V> {
   }
 
   /**
+   * An extended delete version.
+   * If it is supplied a second argument the mapping is only deletd if the values is equal to the suppliead second value (using Object.is equality).
+   * @param key The key which to delete
+   * @param value An optional parameter checks before deletion for equality and only f the values are equals deletes th emapping
+   * @returns
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number|undefined>([["key-2", 1], ["key-3", undefined]]);
+   * for (const key of ["key-1", "key-2", "key-3"]){
+   *    m.computeIf(key, {
+   *        present: (_key, value) => value === undefined ? value : value + 1,
+   *        absent: (key) => Number.parseInt(key.at(-1)!)
+   *    });
+   * }
+   * m.get("key-1") === 1;
+   * m.get("key-2") === 2;
+   * m.get("key-3") === undefined;
+   * ```
+   */
+  delete(key: K, value: V | typeof undefinedSymbol = undefinedSymbol): boolean {
+    if (value === undefinedSymbol) {
+      return super.delete(key);
+    }
+    const v = super.get(key);
+    if (Object.is(v, value)) {
+      return super.delete(key);
+    }
+    return false;
+  }
+
+  /**
    * A shorthand for checking map.size === 0
    *
    * @returns Wether the is empty
@@ -196,6 +230,16 @@ export class CollectionMap<K, V> extends Map<K, V> {
    * @param key The key for which to obtain the value
    * @param def The default value to be returned. Undefined by default
    * @returns the value or undefined if the value is not present
+   * @example
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap([["key", 25]]);
+   * m.get("key") === 25;
+   * m.get("not") === undefined;
+   * m.get("not", 10) === 10;
+   * m.get("key", 10) === 25;
+   * ```
    */
   get(key: K, def: V | undefined = undefined): V | undefined {
     return super.has(key) ? super.get(key) : def;
