@@ -76,14 +76,14 @@ export class CollectionMap<K, V> extends Map<K, V> {
     key: K,
     mappingFunction: (key: K) => V | undefined,
   ): V | undefined {
-    if (!this.has(key)) {
+    if (!super.has(key)) {
       const value = mappingFunction(key);
       if (value !== undefined) {
-        this.set(key, value);
+        super.set(key, value);
       }
       return value;
     }
-    return this.get(key);
+    return super.get(key);
   }
 
   /**
@@ -113,12 +113,12 @@ export class CollectionMap<K, V> extends Map<K, V> {
     key: K,
     remappingFunction: (key: K, value: V) => V | undefined,
   ): V | undefined {
-    if (this.has(key)) {
-      const value = remappingFunction(key, this.get(key)!);
+    if (super.has(key)) {
+      const value = remappingFunction(key, super.get(key)!);
       if (value === undefined) {
-        this.delete(key);
+        super.delete(key);
       } else {
-        this.set(key, value);
+        super.set(key, value);
       }
       return value;
     }
@@ -161,17 +161,44 @@ export class CollectionMap<K, V> extends Map<K, V> {
     },
   ): V | undefined {
     let value = null;
-    if (this.has(key)) {
+    if (super.has(key)) {
       value = functions.present(key, this.get(key));
     } else {
       value = functions.absent(key);
     }
     if (value === undefined) {
-      this.delete(key);
+      super.delete(key);
     } else {
-      this.set(key, value);
+      super.set(key, value);
     }
     return value;
+  }
+
+  /**
+   * A shorthand for checking map.size === 0
+   *
+   * @returns Wether the is empty
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number>();
+   * m.empty === true;
+   * m.set("key", 1);
+   * m.empty === false;
+   * ```
+   */
+  get empty(): boolean {
+    return super.size === 0;
+  }
+
+  /**
+   * An extended getter function with a default value if the value is not in the map
+   * @param key The key for which to obtain the value
+   * @param def The default value to be returned. Undefined by default
+   * @returns the value or undefined if the value is not present
+   */
+  get(key: K, def: V | undefined = undefined): V | undefined {
+    return super.has(key) ? super.get(key) : def;
   }
 
   /**
@@ -186,7 +213,7 @@ export class CollectionMap<K, V> extends Map<K, V> {
    * ```
    */
   hasValue(value: V): boolean {
-    for (const v of this.values()) {
+    for (const v of super.values()) {
       if (Object.is(value, v)) {
         return true;
       }
@@ -226,15 +253,15 @@ export class CollectionMap<K, V> extends Map<K, V> {
       value: Exclude<V, undefined>,
     ) => V | undefined,
   ): V | undefined {
-    const prev = this.get(key);
+    const prev = super.get(key);
     const v = prev === undefined
       ? value
       // I do not like the casting here but oitherwise it would not be possible
       : mappingFunction(prev as Exclude<V, undefined>, value);
     if (v !== undefined) {
-      this.set(key, v);
+      super.set(key, v);
     } else {
-      this.delete(key);
+      super.delete(key);
     }
     return v;
   }

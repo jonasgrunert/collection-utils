@@ -175,11 +175,29 @@ Deno.bench("Map - hasValue", { group: "Map - hasValue" }, () => {
   m.hasValue(10_0001);
 });
 
+Deno.bench("Map - empty", { group: "Map - empty" }, () => {
+  const m = new CollectionMap<string, number>();
+  m.empty === true;
+  m.set("key", 1);
+  m.empty === false;
+});
+
+Deno.bench(
+  "Map - empty - Baseline",
+  { group: "Map - empty", baseline: true },
+  () => {
+    const m = new Map<string, number>();
+    m.size === 0;
+    m.set("key", 1);
+    m.size === 0;
+  },
+);
+
 Deno.bench(
   "Map - hasValue - Baseline",
   { group: "Map - hasValue", baseline: true },
   () => {
-    const m = new CollectionMap(
+    const m = new Map(
       Array.from({ length: 10_000 }, (i) => [`key-${i}`, i]),
     );
     for (const v of m.values()) {
@@ -192,6 +210,26 @@ Deno.bench(
         break;
       }
     }
+  },
+);
+
+Deno.bench("Map - get", { group: "Map - get" }, () => {
+  const m = new CollectionMap<string, number>([["key", 25]]);
+  const v = m.get("not");
+  const v2 = m.get("not", 10);
+  const v3 = m.get("key");
+  const v4 = m.get("key", 10);
+});
+
+Deno.bench(
+  "Map - get - Baseline",
+  { group: "Map - get", baseline: true },
+  () => {
+    const m = new Map<string, number>([["key", 25]]);
+    const v = m.has("not") ? m.get("not") : undefined;
+    const v2 = m.has("not") ? m.get("not") : 10;
+    const v3 = m.has("key") ? m.get("key") : undefined;
+    const v4 = m.has("key") ? m.get("key") : 10;
   },
 );
 

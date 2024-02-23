@@ -182,6 +182,34 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("empty", async (t) => {
+    await t.step("Is empty", () => {
+      const m = new CollectionMap<string, number>();
+      assert(m.empty);
+    });
+    await t.step("Is not empty", () => {
+      const m = new CollectionMap([["key", 25]]);
+      assert(!m.empty);
+    });
+  });
+  await t.step("get", async (t) => {
+    await t.step("get without value and without default", () => {
+      const m = new CollectionMap<string, number>();
+      assertEquals(m.get("1"), undefined);
+    });
+    await t.step("Get without value and with default", () => {
+      const m = new CollectionMap([["key", 25]]);
+      assertEquals(m.get("1", 10), 10);
+    });
+    await t.step("Get with value and without default", () => {
+      const m = new CollectionMap([["key", 25]]);
+      assertEquals(m.get("key"), 25);
+    });
+    await t.step("Get with value and with default", () => {
+      const m = new CollectionMap([["key", 25]]);
+      assertEquals(m.get("key", 10), 25);
+    });
+  });
   await t.step("hasValue", async (t) => {
     await t.step("Value exists", () => {
       const m = new CollectionMap([["key", 25]]);
