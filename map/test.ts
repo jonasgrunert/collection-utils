@@ -199,6 +199,14 @@ Deno.test("Map", async (t) => {
       const m = new CollectionMap<string, number>([["key", 25]]);
       assert(!m.delete("key", 10));
     });
+    await t.step(
+      "Dleete succesful even on undefined value",
+      () => {
+        const m = new CollectionMap([["Key", undefined]]);
+        assertEquals(m.delete("Key", undefined), true);
+        assert(!m.has("Key"));
+      },
+    );
   });
   await t.step("Deletes succesful with value checking for undefined", () => {
     const m = new CollectionMap<string, number | undefined>([[
@@ -275,6 +283,45 @@ Deno.test("Map", async (t) => {
           undefined,
         );
         assertEquals(m.get("Key"), undefined);
+      },
+    );
+  });
+  await t.step("replace", async (t) => {
+    await t.step("Key does not exist", () => {
+      const m = new CollectionMap<string, number>();
+      assertEquals(m.replace("Key", 10), undefined);
+      assertEquals(m.get("Key"), undefined);
+    });
+    await t.step("Key does exist", () => {
+      const m = new CollectionMap([["Key", 1]]);
+      assertEquals(m.replace("Key", 10), 10);
+      assertEquals(m.get("Key"), 10);
+    });
+    await t.step(
+      "Key does exist but value does not match",
+      () => {
+        const m = new CollectionMap([["Key", 1]]);
+        assertEquals(m.replace("Key", 10, -1), 1);
+        assertEquals(m.get("Key"), 1);
+      },
+    );
+    await t.step(
+      "Key does exist but and value does match",
+      () => {
+        const m = new CollectionMap([["Key", 1]]);
+        assertEquals(m.replace("Key", 10, 1), 10);
+        assertEquals(m.get("Key"), 10);
+      },
+    );
+    await t.step(
+      "Key is replaced even when undefined is used for matching",
+      () => {
+        const m = new CollectionMap<string, number | undefined>([[
+          "Key",
+          undefined,
+        ]]);
+        assertEquals(m.replace("Key", 1, undefined), 1);
+        assertEquals(m.get("Key"), 1);
       },
     );
   });

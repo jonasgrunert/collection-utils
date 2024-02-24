@@ -181,20 +181,15 @@ export class CollectionMap<K, V> extends Map<K, V> {
    * If it is supplied a second argument the mapping is only deletd if the values is equal to the suppliead second value (using Object.is equality).
    * @param key The key which to delete
    * @param value An optional parameter checks before deletion for equality and only f the values are equals deletes th emapping
-   * @returns
+   * @returns True if a delete was performed and false if not
    * @example
    * ```ts
    * import { CollectionMap } from "./mod.ts"
-   * const m = new CollectionMap<string, number|undefined>([["key-2", 1], ["key-3", undefined]]);
-   * for (const key of ["key-1", "key-2", "key-3"]){
-   *    m.computeIf(key, {
-   *        present: (_key, value) => value === undefined ? value : value + 1,
-   *        absent: (key) => Number.parseInt(key.at(-1)!)
-   *    });
-   * }
-   * m.get("key-1") === 1;
-   * m.get("key-2") === 2;
-   * m.get("key-3") === undefined;
+   * const m = new CollectionMap<string, number>([["key-2", 1], ["key-3", 3]]);
+   * m.delete("key-1") === false;
+   * m.delete("key-2") === true;
+   * m.delete("key-3", 1) === false;
+   * m.delete("key-3", 3) === true;
    * ```
    */
   delete(key: K, value: V | typeof undefinedSymbol = undefinedSymbol): boolean {
@@ -308,5 +303,38 @@ export class CollectionMap<K, V> extends Map<K, V> {
       super.delete(key);
     }
     return v;
+  }
+
+  /**
+   * A utility function that only sets a value if it already exists and if a third praramter is provided ifthe are equal.
+   * For equality it uses Object.is equality.
+   * @param key The key which to delete
+   * @param value The value to insert if there already is a mpiing
+   * @param previousValue An optional parameter checks before deletion for equality and only f the values are equals deletes th emapping
+   * @returns The new value associated with that key
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number>([["key-2", 1]]);
+   * m.replace("key-1", 12) === undefined;
+   * m.replace("key-2", 5) === 5;
+   * m.replace("key-2", 100, 10) === undefined;
+   * m.replace("key-2", 10, 5) === undefined;
+   * ```
+   */
+  replace(
+    key: K,
+    value: V,
+    previousValue: V | typeof undefinedSymbol = undefinedSymbol,
+  ) {
+    if (
+      super.has(key) &&
+      (previousValue === undefinedSymbol ||
+        Object.is(super.get(key), previousValue))
+    ) {
+      super.set(key, value);
+      return value;
+    }
+    return super.get(key);
   }
 }

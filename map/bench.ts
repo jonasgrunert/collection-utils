@@ -252,10 +252,10 @@ Deno.bench(
 
 Deno.bench("Map - get", { group: "Map - get" }, () => {
   const m = new CollectionMap<string, number>([["key", 25]]);
-  const v = m.get("not");
-  const v2 = m.get("not", 10);
-  const v3 = m.get("key");
-  const v4 = m.get("key", 10);
+  m.get("not");
+  m.get("not", 10);
+  m.get("key");
+  m.get("key", 10);
 });
 
 Deno.bench(
@@ -263,10 +263,10 @@ Deno.bench(
   { group: "Map - get", baseline: true },
   () => {
     const m = new Map<string, number>([["key", 25]]);
-    const v = m.has("not") ? m.get("not") : undefined;
-    const v2 = m.has("not") ? m.get("not") : 10;
-    const v3 = m.has("key") ? m.get("key") : undefined;
-    const v4 = m.has("key") ? m.get("key") : 10;
+    m.has("not") ? m.get("not") : undefined;
+    m.has("not") ? m.get("not") : 10;
+    m.has("key") ? m.get("key") : undefined;
+    m.has("key") ? m.get("key") : 10;
   },
 );
 
@@ -296,6 +296,34 @@ Deno.bench(
       } else {
         m.set("Key", n);
       }
+    }
+  },
+);
+
+Deno.bench("Map - replace", { group: "Map - replace" }, () => {
+  const m = new CollectionMap<string, number>([["key-2", 1]]);
+  m.replace("key-1", 12) === undefined;
+  m.replace("key-2", 5) === 5;
+  m.replace("key-2", 100, 10) === undefined;
+  m.replace("key-2", 10, 5) === undefined;
+});
+
+Deno.bench(
+  "Map - replace - Baseline",
+  { group: "Map - replace", baseline: true },
+  () => {
+    const m = new Map<string, number>();
+    if (m.has("key-1")) {
+      m.set("key-1", 12);
+    }
+    if (m.has("key-2")) {
+      m.set("key-2", 5);
+    }
+    if (m.get("key-2") === 10) {
+      m.set("key-1", 100);
+    }
+    if (m.get("key-2") === 5) {
+      m.set("key-1", 10);
     }
   },
 );
