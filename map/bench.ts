@@ -327,3 +327,23 @@ Deno.bench(
     }
   },
 );
+
+Deno.bench("Map - replaceAll", { group: "Map - replaceAll" }, () => {
+  const m = new CollectionMap<string, number>([["key-1", -1], ["key-2", 1]]);
+  m.replaceAll((k, v) => v < 0 ? undefined : v + 1);
+});
+
+Deno.bench(
+  "Map - replaceAll - Baseline",
+  { group: "Map - replaceAll", baseline: true },
+  () => {
+    const m = new Map<string, number>([["key-1", -1], ["key-2", 1]]);
+    for (const [k, v] of m.entries()) {
+      if (v < 0) {
+        m.delete(k);
+      } else {
+        m.set(k, v + 1);
+      }
+    }
+  },
+);

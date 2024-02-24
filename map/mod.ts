@@ -326,7 +326,7 @@ export class CollectionMap<K, V> extends Map<K, V> {
     key: K,
     value: V,
     previousValue: V | typeof undefinedSymbol = undefinedSymbol,
-  ) {
+  ): V | undefined {
     if (
       super.has(key) &&
       (previousValue === undefinedSymbol ||
@@ -336,5 +336,31 @@ export class CollectionMap<K, V> extends Map<K, V> {
       return value;
     }
     return super.get(key);
+  }
+
+  /**
+   * A way to replace all current mappings returning undefined will delete the mapping.+
+   * It applieas a function., which takes key and value as parameter and returns a new value or undefined.
+   * @param remapping The function which takes key and value and returns the an value
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number>([["Key",10], ["Key-2", -1]]);
+   * m.replaceAll((k, v) => v < 0 ? undefined : v + k.length);
+   * m.get("Key") === 13;
+   * m.has("Key-2") === false;
+   * ```
+   */
+  replaceAll(
+    remapping: (key: K, value: V) => V | undefined,
+  ): void {
+    for (const [key, value] of super.entries()) {
+      const n = remapping(key, value);
+      if (n === undefined) {
+        super.delete(key);
+      } else {
+        super.set(key, n);
+      }
+    }
   }
 }

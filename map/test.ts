@@ -325,4 +325,18 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("replaceAll", async (t) => {
+    await t.step(
+      "All keys are replaced and undefined keys are discarded",
+      () => {
+        const m = new CollectionMap<string, number>([[
+          "Key",
+          10,
+        ], ["Key-2", -1]]);
+        m.replaceAll((k, v) => v < 0 ? undefined : v + k.length);
+        assertEquals(m.get("Key"), 13);
+        assert(!m.has("Key-2"));
+      },
+    );
+  });
 });
