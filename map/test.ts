@@ -339,6 +339,28 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("setAll", async (t) => {
+    await t.step("Normal merge", () => {
+      const m = new CollectionMap<string, number>([["Key", 10], ["Key-1", 5]]);
+      const newM = m.setAll(
+        new Map([["Key", 2], ["Key-2", 3]]),
+        (v1, v2) => v1 && v2 ? v1 + v2 : (v1 ?? v2),
+      );
+      assertEquals(newM.get("Key"), 12);
+      assertEquals(newM.get("Key-1"), 5);
+      assertEquals(newM.get("Key-2"), 3);
+    });
+    await t.step("Undefined removes key", () => {
+      const m = new CollectionMap<string, number>([["Key", 10], ["Key-1", 5]]);
+      const newM = m.setAll(
+        new Map([["Key", 2], ["Key-2", 3]]),
+        (v1, v2) => v1 && v2 ? undefined : (v1 ?? v2),
+      );
+      assertEquals(newM.get("Key"), undefined);
+      assertEquals(newM.get("Key-1"), 5);
+      assertEquals(newM.get("Key-2"), 3);
+    });
+  });
   await t.step("setIfAbsent", async (t) => {
     await t.step("Key does not exist", () => {
       const m = new CollectionMap<string, number>();

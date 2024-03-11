@@ -348,6 +348,47 @@ Deno.bench(
   },
 );
 
+Deno.bench("Map - setAll", { group: "Map - setAll" }, () => {
+  const m = new CollectionMap<string, number>([["Key", 10], ["Key-1", 5]]);
+  const newM = m.setAll(
+    new Map([["Key", 2], ["Key-2", 3]]),
+    (v1, v2) => v1 && v2 ? v1 + v2 : (v1 ?? v2),
+  );
+});
+
+Deno.bench(
+  "Map - setAll - Baseline",
+  { group: "Map - setAll", baseline: true },
+  () => {
+    const m = new Map<string, number>([["key-1", 10], ["key-1", 5]]);
+    const other = new Map([["Key", 2], ["Key-2", 3]]);
+    const newMap = new Map<string, number>();
+    const keySet = new Set<string>();
+    for (const [key, value] of m.entries()) {
+      keySet.add(key);
+      const otherValue = other.get(key);
+      const newValue = value && otherValue
+        ? value + otherValue
+        : (value ?? otherValue);
+      if (newValue !== undefined) {
+        newMap.set(key, newValue);
+      }
+    }
+    for (const [key, value] of other.entries()) {
+      if (!keySet.has(key)) {
+        keySet.add(key);
+        const otherValue = other.get(key);
+        const newValue = value && otherValue
+          ? value + otherValue
+          : (value ?? otherValue);
+        if (newValue !== undefined) {
+          newMap.set(key, newValue);
+        }
+      }
+    }
+  },
+);
+
 Deno.bench("Map - setIfAbsent", { group: "Map - setIfAbsent" }, () => {
   const m = new CollectionMap<string, number>([["key-1", -1], ["key-2", 1]]);
   m.setIfAbsent("key-1", 3);

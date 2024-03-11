@@ -365,6 +365,49 @@ export class CollectionMap<K, V> extends Map<K, V> {
   }
 
   /**
+   * A way to merge two maps. The funtion specifies how the values should be merged.
+   * It returns an entirely new map and does not mutate an existsing one. Key comparison is done using Object.is equality.
+   *
+   * @param other The map to merge
+   * @param mergeFunction The funtion to calculate the merged result. Undefined will not insert the value into the new map.
+   * @returns the new merged map
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number>([["Key",10]]);
+   * const newM = m.setAll(new Map([["Key", 1], ["Key-1", 5]]), (v1, v2) => v1 && v2 ? v1+v2 : (v1 ?? v2));
+   * newM.get("Key") === 11;
+   * newM.get("Key-1") === 5;
+   * ```
+   */
+  setAll<oK, oV, nV>(
+    other: Map<oK, oV>,
+    mergeFunction: (
+      v1: V | undefined,
+      v2: oV | undefined,
+    ) => nV | undefined,
+  ): Map<K | oK, nV> {
+    const newMap = new Map<K | oK, nV>();
+    const keySet = new Set<K>();
+    for (const [key, value] of super.entries()) {
+      keySet.add(key);
+      const newValue = mergeFunction(value, other.get(key as unknown as oK));
+      if (newValue !== undefined) {
+        newMap.set(key, newValue);
+      }
+    }
+    for (const [key, value] of other.entries()) {
+      if (!keySet.has(key as unknown as K)) {
+        const newValue = mergeFunction(super.get(key as unknown as K), value);
+        if (newValue !== undefined) {
+          newMap.set(key, newValue);
+        }
+      }
+    }
+    return newMap;
+  }
+
+  /**
    * A way to set a key only if the value is not present in the map as checked by has
    *
    * @param key The key to set
