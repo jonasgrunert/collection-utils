@@ -218,7 +218,7 @@ Deno.bench(
     const m = new Map<string, number>();
     m.size === 0;
     m.set("key", 1);
-    m.size === 0;
+    m.size === 1;
   },
 );
 
@@ -344,6 +344,26 @@ Deno.bench(
       } else {
         m.set(k, v + 1);
       }
+    }
+  },
+);
+
+Deno.bench("Map - setIfAbsent", { group: "Map - setIfAbsent" }, () => {
+  const m = new CollectionMap<string, number>([["key-1", -1], ["key-2", 1]]);
+  m.setIfAbsent("key-1", 3);
+  m.setIfAbsent("Key-3", 3);
+});
+
+Deno.bench(
+  "Map - setIfAbsent - Baseline",
+  { group: "Map - setIfAbsent", baseline: true },
+  () => {
+    const m = new Map<string, number>([["key-1", -1], ["key-2", 1]]);
+    if (!m.has("key-1")) {
+      m.set("key-1", 3);
+    }
+    if (!m.has("key-3")) {
+      m.set("key-3", 3);
     }
   },
 );

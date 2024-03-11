@@ -363,4 +363,26 @@ export class CollectionMap<K, V> extends Map<K, V> {
       }
     }
   }
+
+  /**
+   * A way to set a key only if the value is not present in the map as checked by has
+   *
+   * @param key The key to set
+   * @param value The value to set if the key is not present in the map
+   * @returns the new or old value of the key
+   * @example
+   * ```ts
+   * import { CollectionMap } from "./mod.ts"
+   * const m = new CollectionMap<string, number>([["Key",10]]);
+   * m.setIfAbsent("Key", 1) === 10;
+   * m.setIfAbsent("Key-1", 13) === 13;
+   * ```
+   */
+  setIfAbsent(key: K, value: V): V {
+    if (!super.has(key)) {
+      super.set(key, value);
+      return value;
+    }
+    return super.get(key)!;
+  }
 }

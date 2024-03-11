@@ -339,4 +339,16 @@ Deno.test("Map", async (t) => {
       },
     );
   });
+  await t.step("setIfAbsent", async (t) => {
+    await t.step("Key does not exist", () => {
+      const m = new CollectionMap<string, number>();
+      assertEquals(m.setIfAbsent("Key", 10), 10);
+      assertEquals(m.get("Key"), 10);
+    });
+    await t.step("Key does exist", () => {
+      const m = new CollectionMap([["Key", 1]]);
+      assertEquals(m.setIfAbsent("Key", 10), 1);
+      assertEquals(m.get("Key"), 1);
+    });
+  });
 });
