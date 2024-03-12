@@ -2,7 +2,7 @@ const undefinedSymbol = Symbol("collections::undefined");
 
 /**
  * ### Extended Map Class
- * Can be used in the same way as normal class with some convenience methods.
+ * Can be used in the same way as normal map with some convenience methods.
  *
  * All functions take a special understanding of undefined, which is treated as not being part of the map.
  * If you need to use a nullish value use `null`.
@@ -23,7 +23,6 @@ export class CollectionMap<K, V> extends Map<K, V> {
    *
    * If a value is returned it will get written as the new value to the key.
    * If undefined is returned the mapping will not be added or it will be deleted if it was present before.
-   * @summary A function to compute a new value based on the old value or undefined if not present. Returns the new value associted with the key.
    * @param key Key of the entry.
    * @param mappingFunction A function called with the key, and value or undefined if key is not present and should return a new value.
    * @returns The new computed and stored value or undefined
