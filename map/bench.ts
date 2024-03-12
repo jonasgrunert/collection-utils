@@ -362,7 +362,6 @@ Deno.bench(
   () => {
     const m = new Map<string, number>([["key-1", 10], ["key-1", 5]]);
     const other = new Map([["Key", 2], ["Key-2", 3]]);
-    const newMap = new Map<string, number>();
     const keySet = new Set<string>();
     for (const [key, value] of m.entries()) {
       keySet.add(key);
@@ -371,7 +370,9 @@ Deno.bench(
         ? value + otherValue
         : (value ?? otherValue);
       if (newValue !== undefined) {
-        newMap.set(key, newValue);
+        m.set(key, newValue);
+      } else {
+        m.delete(key);
       }
     }
     for (const [key, value] of other.entries()) {
@@ -382,7 +383,7 @@ Deno.bench(
           ? value + otherValue
           : (value ?? otherValue);
         if (newValue !== undefined) {
-          newMap.set(key, newValue);
+          m.set(key, newValue);
         }
       }
     }
